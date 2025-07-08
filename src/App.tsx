@@ -47,6 +47,9 @@ function App() {
 
   // 自動解答処理（仮実装）
   const handleAutoSolve = useCallback(() => {
+    if (!window.confirm('本当に自動解答を開始しますか？')) {
+      return;
+    }
     // TODO: 自動解答ロジックをここに実装
   }, [tiles, size, moveTile]);
 
