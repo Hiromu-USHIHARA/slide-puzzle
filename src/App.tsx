@@ -1,35 +1,98 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useCallback } from 'react';
+import { useSlidePuzzle, type PuzzleSize } from './components/useSlidePuzzle';
+import { PuzzleBoard } from './components/PuzzleBoard';
+import { GameInfo } from './components/GameInfo';
+import { GameControls } from './components/GameControls';
+import { ImageUpload } from './components/ImageUpload';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [size, setSize] = useState<PuzzleSize>(3);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  
+  const {
+    tiles,
+    isComplete,
+    moves,
+    elapsedTime,
+    initializePuzzle,
+    shufflePuzzle,
+    moveTile
+  } = useSlidePuzzle(size);
+
+  // サイズ変更時の処理
+  const handleSizeChange = useCallback((newSize: PuzzleSize) => {
+    setSize(newSize);
+    // サイズ変更時にパズルを初期化
+    setTimeout(() => {
+      initializePuzzle();
+    }, 0);
+  }, [initializePuzzle]);
+
+  // シャッフル処理
+  const handleShuffle = useCallback(() => {
+    shufflePuzzle();
+  }, [shufflePuzzle]);
+
+  // リセット処理
+  const handleReset = useCallback(() => {
+    initializePuzzle();
+  }, [initializePuzzle]);
+
+  // 画像変更時の処理
+  const handleImageChange = useCallback((image: string | null) => {
+    setUploadedImage(image);
+  }, []);
+
+  // タイルクリック時の処理
+  const handleTileClick = useCallback((tileId: number) => {
+    moveTile(tileId);
+  }, [moveTile]);
+
+  // 初期化
+  React.useEffect(() => {
+    initializePuzzle();
+  }, [initializePuzzle]);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="app">
+      <header className="app-header">
+        <h1>スライドパズル</h1>
+        <p>タイルをクリックして正しい順序に並べ替えましょう！</p>
+      </header>
+
+      <main className="app-main">
+        <div className="game-container">
+          <ImageUpload onImageChange={handleImageChange} />
+          
+          <GameControls
+            size={size}
+            onSizeChange={handleSizeChange}
+            onShuffle={handleShuffle}
+            onReset={handleReset}
+            isComplete={isComplete}
+          />
+
+          <GameInfo
+            moves={moves}
+            elapsedTime={elapsedTime}
+            isComplete={isComplete}
+          />
+
+          <PuzzleBoard
+            tiles={tiles}
+            size={size}
+            onTileClick={handleTileClick}
+            uploadedImage={uploadedImage}
+          />
+        </div>
+      </main>
+
+      <footer className="app-footer">
+        <p>© 2024 スライドパズル</p>
+      </footer>
+    </div>
+  );
 }
 
-export default App
+export default App;
