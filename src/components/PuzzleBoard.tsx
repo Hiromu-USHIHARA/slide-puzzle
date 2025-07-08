@@ -16,11 +16,17 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   uploadedImage
 }) => {
   const renderTile = (tile: Tile) => {
-    const tileStyle: React.CSSProperties = {
-      backgroundImage: uploadedImage && !tile.isEmpty ? `url(${uploadedImage})` : undefined,
-      backgroundSize: `${size * 100}px ${size * 100}px`,
-      backgroundPosition: `-${(tile.correctPosition % size) * (100 / size)}% -${Math.floor(tile.correctPosition / size) * (100 / size)}%`,
-    };
+    let tileStyle: React.CSSProperties = {};
+    if (uploadedImage && !tile.isEmpty) {
+      const row = Math.floor(tile.correctPosition / size);
+      const col = tile.correctPosition % size;
+      const percent = size > 1 ? 100 / (size - 1) : 100;
+      tileStyle = {
+        backgroundImage: `url(${uploadedImage})`,
+        backgroundSize: `${size * 100}% ${size * 100}%`,
+        backgroundPosition: `-${col * percent}% -${row * percent}%`,
+      };
+    }
 
     return (
       <div
