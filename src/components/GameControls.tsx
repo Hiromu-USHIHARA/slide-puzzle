@@ -22,7 +22,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
   return (
     <div className="game-controls">
       <div className="control-group">
-        <label className="control-label">パズルサイズ:</label>
+        <label className="control-label">パズルサイズ</label>
         <div className="size-buttons">
           <button
             className={`size-button ${size === 3 ? 'active' : ''}`}
@@ -47,7 +47,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
           リセット
         </button>
         <button className="control-button auto-solve" onClick={onAutoSolve} disabled={isComplete}>
-          自動解答
+          解答表示
         </button>
       </div>
       
