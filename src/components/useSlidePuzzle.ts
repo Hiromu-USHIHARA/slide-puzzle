@@ -9,6 +9,31 @@ export interface Tile {
   isEmpty: boolean;
 }
 
+// ゴール可能か判定する関数
+const isSolvable = (tiles: Tile[], size: number) => {
+//   const totalTiles = size * size;
+  let inversions = 0;
+  const tilePositions = tiles
+    .filter(t => !t.isEmpty)
+    .map(t => t.currentPosition);
+
+  for (let i = 0; i < tilePositions.length - 1; i++) {
+    for (let j = i + 1; j < tilePositions.length; j++) {
+      if (tilePositions[i] > tilePositions[j]) inversions++;
+    }
+  }
+
+  if (size % 2 === 1) {
+    // 奇数サイズ
+    return inversions % 2 === 0;
+  } else {
+    // 偶数サイズ
+    const emptyTile = tiles.find(t => t.isEmpty)!;
+    const emptyRowFromBottom = size - Math.floor(emptyTile.currentPosition / size);
+    return (inversions + emptyRowFromBottom) % 2 === 0;
+  }
+};
+
 export const useSlidePuzzle = (size: PuzzleSize) => {
   const [tiles, setTiles] = useState<Tile[]>([]);
   const [isComplete, setIsComplete] = useState(false);
@@ -16,13 +41,10 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
 
-  // パズルを初期化
+  // パズルを初期化（シャッフルも同時に実施）
   const initializePuzzle = useCallback(() => {
     const totalTiles = size * size;
-    const initialTiles: Tile[] = [];
-    
-    console.log(`Initializing puzzle with size ${size}x${size}, total tiles: ${totalTiles}`);
-    
+    let initialTiles: Tile[] = [];
     for (let i = 0; i < totalTiles; i++) {
       initialTiles.push({
         id: i,
@@ -31,10 +53,26 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
         isEmpty: i === totalTiles - 1
       });
     }
-    
-    console.log(`Created ${initialTiles.length} tiles:`, initialTiles);
-    
-    setTiles(initialTiles);
+
+    // --- シャッフル処理 ---
+    let shuffledTiles = [...initialTiles];
+    let attempts = 0;
+    const maxAttempts = 1000;
+    do {
+      // ランダムにタイルを交換
+      for (let i = 0; i < totalTiles * 2; i++) {
+        const pos1 = Math.floor(Math.random() * totalTiles);
+        const pos2 = Math.floor(Math.random() * totalTiles);
+        if (pos1 !== pos2) {
+          const temp = shuffledTiles[pos1].currentPosition;
+          shuffledTiles[pos1].currentPosition = shuffledTiles[pos2].currentPosition;
+          shuffledTiles[pos2].currentPosition = temp;
+        }
+      }
+      attempts++;
+    } while (!isSolvable(shuffledTiles, size) && attempts < maxAttempts);
+
+    setTiles(shuffledTiles);
     setIsComplete(false);
     setMoves(0);
     setStartTime(new Date());
@@ -45,42 +83,20 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
   const shufflePuzzle = useCallback(() => {
     const totalTiles = size * size;
     const shuffledTiles = [...tiles];
-    
-    // 解ける状態を保証するため、偶数の反転数を持つ配置にする
-    let inversions = 0;
     let attempts = 0;
-    const maxAttempts = 100;
-    
+    const maxAttempts = 1000;
     do {
-      // ランダムにタイルを交換
       for (let i = 0; i < totalTiles * 2; i++) {
         const pos1 = Math.floor(Math.random() * totalTiles);
         const pos2 = Math.floor(Math.random() * totalTiles);
-        
         if (pos1 !== pos2) {
           const temp = shuffledTiles[pos1].currentPosition;
           shuffledTiles[pos1].currentPosition = shuffledTiles[pos2].currentPosition;
           shuffledTiles[pos2].currentPosition = temp;
         }
       }
-      
-      // 反転数を計算
-      inversions = 0;
-      for (let i = 0; i < totalTiles - 1; i++) {
-        for (let j = i + 1; j < totalTiles; j++) {
-          const tile1 = shuffledTiles.find(t => t.currentPosition === i);
-          const tile2 = shuffledTiles.find(t => t.currentPosition === j);
-          if (tile1 && tile2 && !tile1.isEmpty && !tile2.isEmpty) {
-            if (tile1.correctPosition > tile2.correctPosition) {
-              inversions++;
-            }
-          }
-        }
-      }
-      
       attempts++;
-    } while (inversions % 2 !== 0 && attempts < maxAttempts);
-    
+    } while (!isSolvable(shuffledTiles, size) && attempts < maxAttempts);
     setTiles(shuffledTiles);
     setIsComplete(false);
     setMoves(0);
@@ -125,6 +141,8 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
   useEffect(() => {
     initializePuzzle();
   }, [size, initializePuzzle]);
+
+  // tilesが初期化された直後に自動でシャッフル（不要なので削除）
 
   // 完了チェック
   useEffect(() => {

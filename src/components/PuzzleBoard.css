@@ -5,9 +5,28 @@
   padding: 10px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  margin: 20px auto;
+  margin: auto !important;
   max-width: 400px;
   max-height: 400px;
+}
+
+/* 大きな画面でのパズルボードサイズ調整 */
+@media (min-width: 1024px) {
+  .puzzle-board {
+    max-width: 90%;
+    max-height: 90vh;
+    width: 100%;
+    height: auto;
+    margin: auto !important;
+  }
+}
+
+/* 中サイズ画面での調整 */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .puzzle-board {
+    max-width: 450px;
+    max-height: 450px;
+  }
 }
 
 .puzzle-tile {

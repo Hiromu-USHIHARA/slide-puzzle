@@ -9,6 +9,16 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* 大きな画面でのサイドバーレイアウト調整 */
+@media (min-width: 1024px) {
+  .game-info {
+    margin: 0;
+    padding: 15px;
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+
 .info-item {
   display: flex;
   justify-content: space-between;
