@@ -44,6 +44,8 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     gridTemplateRows: `repeat(${size}, 1fr)`,
   };
 
+  console.log(`Rendering puzzle board with size ${size}x${size}, tiles:`, tiles);
+  
   return (
     <div className="puzzle-board" style={boardStyle}>
       {Array.from({ length: size * size }, (_, index) => {

@@ -23,11 +23,7 @@ function App() {
   // サイズ変更時の処理
   const handleSizeChange = useCallback((newSize: PuzzleSize) => {
     setSize(newSize);
-    // サイズ変更時にパズルを初期化
-    setTimeout(() => {
-      initializePuzzle();
-    }, 0);
-  }, [initializePuzzle]);
+  }, []);
 
   // シャッフル処理
   const handleShuffle = useCallback(() => {
@@ -49,10 +45,7 @@ function App() {
     moveTile(tileId);
   }, [moveTile]);
 
-  // 初期化
-  React.useEffect(() => {
-    initializePuzzle();
-  }, [initializePuzzle]);
+  // 初期化はuseSlidePuzzleフック内で自動的に行われるため削除
 
   return (
     <div className="app">

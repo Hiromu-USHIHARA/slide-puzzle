@@ -21,6 +21,8 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
     const totalTiles = size * size;
     const initialTiles: Tile[] = [];
     
+    console.log(`Initializing puzzle with size ${size}x${size}, total tiles: ${totalTiles}`);
+    
     for (let i = 0; i < totalTiles; i++) {
       initialTiles.push({
         id: i,
@@ -29,6 +31,8 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
         isEmpty: i === totalTiles - 1
       });
     }
+    
+    console.log(`Created ${initialTiles.length} tiles:`, initialTiles);
     
     setTiles(initialTiles);
     setIsComplete(false);
@@ -116,6 +120,11 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
       setMoves(prev => prev + 1);
     }
   }, [tiles, size]);
+
+  // サイズ変更時にパズルを初期化
+  useEffect(() => {
+    initializePuzzle();
+  }, [size, initializePuzzle]);
 
   // 完了チェック
   useEffect(() => {
