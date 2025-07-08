@@ -82,7 +82,7 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <p>© 2024 スライドパズル</p>
+        <p>designed by <a href="https://github.com/Hiromu-USHIHARA">Hiromu Ushihara</a></p>
       </footer>
     </div>
   );

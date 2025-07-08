@@ -20,7 +20,7 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     const col = index % size;
     
     const tileStyle: React.CSSProperties = {
-      backgroundImage: uploadedImage ? `url(${uploadedImage})` : undefined,
+      backgroundImage: uploadedImage && !tile.isEmpty ? `url(${uploadedImage})` : undefined,
       backgroundSize: `${size * 100}px ${size * 100}px`,
       backgroundPosition: `-${(tile.correctPosition % size) * (100 / size)}% -${Math.floor(tile.correctPosition / size) * (100 / size)}%`,
     };
@@ -35,6 +35,9 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
         {!uploadedImage && !tile.isEmpty && (
           <span className="tile-number">{tile.correctPosition + 1}</span>
         )}
+        {/* {uploadedImage && tile.isEmpty && (
+          <span className="empty-indicator">空</span>
+        )} */}
       </div>
     );
   };
