@@ -8,6 +8,7 @@ interface GameControlsProps {
   onShuffle: () => void;
   onReset: () => void;
   isComplete: boolean;
+  onAutoSolve?: () => void; // 追加
 }
 
 export const GameControls: React.FC<GameControlsProps> = ({
@@ -15,7 +16,8 @@ export const GameControls: React.FC<GameControlsProps> = ({
   onSizeChange,
   onShuffle,
   onReset,
-  isComplete
+  isComplete,
+  onAutoSolve // 追加
 }) => {
   return (
     <div className="game-controls">
@@ -43,6 +45,9 @@ export const GameControls: React.FC<GameControlsProps> = ({
         </button>
         <button className="control-button reset" onClick={onReset}>
           リセット
+        </button>
+        <button className="control-button auto-solve" onClick={onAutoSolve} disabled={isComplete}>
+          自動解答
         </button>
       </div>
       

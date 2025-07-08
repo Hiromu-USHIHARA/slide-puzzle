@@ -95,6 +95,16 @@
   background-color: #138496;
 }
 
+.control-button.auto-solve {
+  background-color: #007bff;
+  color: white;
+}
+.control-button.auto-solve:disabled {
+  background-color: #6c757d;
+  color: #fff;
+  cursor: not-allowed;
+}
+
 .completion-controls {
   text-align: center;
   padding-top: 10px;

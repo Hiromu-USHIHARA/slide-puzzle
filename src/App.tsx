@@ -45,6 +45,11 @@ function App() {
     moveTile(tileId);
   }, [moveTile]);
 
+  // 自動解答処理（仮実装）
+  const handleAutoSolve = useCallback(() => {
+    // TODO: 自動解答ロジックをここに実装
+  }, [tiles, size, moveTile]);
+
   // 初期化はuseSlidePuzzleフック内で自動的に行われるため削除
 
   return (
@@ -65,6 +70,7 @@ function App() {
               onShuffle={handleShuffle}
               onReset={handleReset}
               isComplete={isComplete}
+              onAutoSolve={handleAutoSolve}
             />
 
             <GameInfo
