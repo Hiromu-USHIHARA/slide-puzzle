@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useSlidePuzzle, type PuzzleSize } from './components/useSlidePuzzle';
 import { PuzzleBoard } from './components/PuzzleBoard';
 import { GameInfo } from './components/GameInfo';
