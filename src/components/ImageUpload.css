@@ -6,6 +6,16 @@
   border: 2px dashed #dee2e6;
 }
 
+/* 大きな画面でのサイドバーレイアウト調整 */
+@media (min-width: 1024px) {
+  .image-upload {
+    margin: 0;
+    padding: 15px;
+    background-color: transparent;
+    border: 2px dashed #dee2e6;
+  }
+}
+
 .image-upload h3 {
   margin: 0 0 15px 0;
   color: #333;

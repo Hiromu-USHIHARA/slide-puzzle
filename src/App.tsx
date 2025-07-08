@@ -51,33 +51,39 @@ function App() {
     <div className="app">
       <header className="app-header">
         <h1>スライドパズル</h1>
-        <p>タイルをクリックして正しい順序に並べ替えましょう！</p>
+        {/* <p>タイルをクリックして正しい順序に並べ替えましょう！</p> */}
       </header>
 
       <main className="app-main">
         <div className="game-container">
-          <ImageUpload onImageChange={handleImageChange} />
-          
-          <GameControls
-            size={size}
-            onSizeChange={handleSizeChange}
-            onShuffle={handleShuffle}
-            onReset={handleReset}
-            isComplete={isComplete}
-          />
+          <div className="game-sidebar">
+            <ImageUpload onImageChange={handleImageChange} />
+            
+            <GameControls
+              size={size}
+              onSizeChange={handleSizeChange}
+              onShuffle={handleShuffle}
+              onReset={handleReset}
+              isComplete={isComplete}
+            />
 
-          <GameInfo
-            moves={moves}
-            elapsedTime={elapsedTime}
-            isComplete={isComplete}
-          />
+            <GameInfo
+              moves={moves}
+              elapsedTime={elapsedTime}
+              isComplete={isComplete}
+            />
+          </div>
 
-          <PuzzleBoard
-            tiles={tiles}
-            size={size}
-            onTileClick={handleTileClick}
-            uploadedImage={uploadedImage}
-          />
+          <div className="game-main">
+            <div className="puzzle-section">
+              <PuzzleBoard
+                tiles={tiles}
+                size={size}
+                onTileClick={handleTileClick}
+                uploadedImage={uploadedImage}
+              />
+            </div>
+          </div>
         </div>
       </main>
 

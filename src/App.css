@@ -72,3 +72,63 @@
     margin: 0 10px;
   }
 }
+
+/* 大きな画面での2カラムレイアウト */
+@media (min-width: 1024px) {
+  .app-main {
+    padding: 20px 40px;
+    height: 100%;
+  }
+
+  .game-container {
+    max-width: 1200px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    grid-template-rows: auto;
+    gap: 30px;
+    align-items: start;
+  }
+
+  .game-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background-color: #f8f9fa;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+  }
+
+  .game-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  .puzzle-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  .game-info {
+    order: -1;
+  }
+}
+
+/* 中サイズ画面での調整 */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .game-container {
+    max-width: 800px;
+  }
+}
