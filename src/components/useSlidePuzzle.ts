@@ -10,36 +10,36 @@ export interface Tile {
 }
 
 // ゴール可能か判定する関数
-const isSolvable = (tiles: Tile[], size: number): { solvable: boolean; inversions: number; emptyRowFromBottom?: number } => {
-  let inversions = 0;
+// const isSolvable = (tiles: Tile[], size: number): { solvable: boolean; inversions: number; emptyRowFromBottom?: number } => {
+//   let inversions = 0;
 
-  // 現在の配置でのタイルの位置を取得
-  const currentPositions = tiles
-    .filter(t => !t.isEmpty)
-    .map(t => t.currentPosition);
+//   // 現在の配置でのタイルの位置を取得
+//   const currentPositions = tiles
+//     .filter(t => !t.isEmpty)
+//     .map(t => t.currentPosition);
 
-  // 反転数を計算（現在の位置を正しい順序と比較）
-  for (let i = 0; i < currentPositions.length - 1; i++) {
-    for (let j = i + 1; j < currentPositions.length; j++) {
-      if (currentPositions[i] > currentPositions[j]) {
-        inversions++;
-      }
-    }
-  }
+//   // 反転数を計算（現在の位置を正しい順序と比較）
+//   for (let i = 0; i < currentPositions.length - 1; i++) {
+//     for (let j = i + 1; j < currentPositions.length; j++) {
+//       if (currentPositions[i] > currentPositions[j]) {
+//         inversions++;
+//       }
+//     }
+//   }
 
-  if (size % 2 === 1) {
-    // 奇数サイズ：反転数が偶数なら解ける
-    const solvable = inversions % 2 === 0;
-    return { solvable, inversions };
-  } else {
-    // 偶数サイズ：反転数 + 空きタイルの行番号（下から数えて）が偶数なら解ける
-    const emptyTile = tiles.find(t => t.isEmpty)!;
-    const emptyRowFromBottom = size - Math.floor(emptyTile.currentPosition / size);
-    const solvable = (inversions + emptyRowFromBottom) % 2 === 0;
+//   if (size % 2 === 1) {
+//     // 奇数サイズ：反転数が偶数なら解ける
+//     const solvable = inversions % 2 === 0;
+//     return { solvable, inversions };
+//   } else {
+//     // 偶数サイズ：反転数 + 空きタイルの行番号（下から数えて）が偶数なら解ける
+//     const emptyTile = tiles.find(t => t.isEmpty)!;
+//     const emptyRowFromBottom = size - Math.floor(emptyTile.currentPosition / size);
+//     const solvable = (inversions + emptyRowFromBottom) % 2 === 0;
     
-    return { solvable, inversions, emptyRowFromBottom };
-  }
-};
+//     return { solvable, inversions, emptyRowFromBottom };
+//   }
+// };
 
 // 正解配置からランダムに移動を適用してシャッフルする関数
 const shuffleFromSolvedState = (tiles: Tile[], size: number, moves: number = 100): Tile[] => {
