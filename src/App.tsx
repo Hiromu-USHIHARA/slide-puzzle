@@ -16,7 +16,6 @@ function App() {
     moves,
     elapsedTime,
     initializePuzzle,
-    shufflePuzzle,
     moveTile,
   } = useSlidePuzzle(size);
 
@@ -24,11 +23,6 @@ function App() {
   const handleSizeChange = useCallback((newSize: PuzzleSize) => {
     setSize(newSize);
   }, []);
-
-  // シャッフル処理
-  const handleShuffle = useCallback(() => {
-    shufflePuzzle();
-  }, [shufflePuzzle]);
 
   // リセット処理
   const handleReset = useCallback(() => {
@@ -65,7 +59,6 @@ function App() {
             <GameControls
               size={size}
               onSizeChange={handleSizeChange}
-              onShuffle={handleShuffle}
               onReset={handleReset}
               isComplete={isComplete}
             />

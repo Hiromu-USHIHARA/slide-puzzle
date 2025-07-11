@@ -5,7 +5,6 @@ import './GameControls.css';
 interface GameControlsProps {
   size: PuzzleSize;
   onSizeChange: (size: PuzzleSize) => void;
-  onShuffle: () => void;
   onReset: () => void;
   isComplete: boolean;
 }
@@ -13,7 +12,6 @@ interface GameControlsProps {
 export const GameControls: React.FC<GameControlsProps> = ({
   size,
   onSizeChange,
-  onShuffle,
   onReset,
   isComplete,
 }) => {
@@ -40,9 +38,6 @@ export const GameControls: React.FC<GameControlsProps> = ({
       </div>
 
       <div className="control-group">
-        <button type="button" className="control-button shuffle" onClick={onShuffle}>
-          シャッフル
-        </button>
         <button type="button" className="control-button reset" onClick={onReset}>
           リセット
         </button>
@@ -50,7 +45,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
 
       {isComplete && (
         <div className="completion-controls">
-          <button type="button" className="control-button new-game" onClick={onShuffle}>
+          <button type="button" className="control-button new-game" onClick={onReset}>
             新しいゲーム
           </button>
         </div>

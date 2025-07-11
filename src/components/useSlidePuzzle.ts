@@ -19,7 +19,9 @@ const shuffleFromSolvedState = (
 
   // 指定された回数だけランダムな移動を適用
   for (let i = 0; i < moves; i++) {
-    const emptyTile = shuffledTiles.find((t) => t.isEmpty)!;
+    const emptyTile = shuffledTiles.find((t) => t.isEmpty);
+    if (!emptyTile) continue;
+    
     const emptyPos = emptyTile.currentPosition;
     const emptyRow = Math.floor(emptyPos / size);
     const emptyCol = emptyPos % size;
@@ -50,7 +52,8 @@ const shuffleFromSolvedState = (
         adjacentPositions[Math.floor(Math.random() * adjacentPositions.length)];
       const adjacentTile = shuffledTiles.find(
         (t) => t.currentPosition === randomAdjacentPos
-      )!;
+      );
+      if (!adjacentTile) continue;
 
       // 位置を交換
       emptyTile.currentPosition = randomAdjacentPos;
@@ -70,33 +73,6 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
 
   // パズルを初期化（シャッフルも同時に実施）
   const initializePuzzle = useCallback(() => {
-    const totalTiles = size * size;
-    const initialTiles: Tile[] = [];
-    for (let i = 0; i < totalTiles; i++) {
-      initialTiles.push({
-        id: i,
-        currentPosition: i,
-        correctPosition: i,
-        isEmpty: i === totalTiles - 1,
-      });
-    }
-
-    // 正解配置からランダムに移動を適用してシャッフル
-    const shuffledTiles = shuffleFromSolvedState(
-      initialTiles,
-      size,
-      size === 3 ? 100 : 200
-    );
-
-    setTiles(shuffledTiles);
-    setIsComplete(false);
-    setMoves(0);
-    setStartTime(new Date());
-    setElapsedTime(0);
-  }, [size]);
-
-  // パズルをシャッフル（解ける状態を保証）
-  const shufflePuzzle = useCallback(() => {
     const totalTiles = size * size;
     const initialTiles: Tile[] = [];
     for (let i = 0; i < totalTiles; i++) {
@@ -164,7 +140,7 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
   // サイズ変更時にパズルを初期化
   useEffect(() => {
     initializePuzzle();
-  }, [size, initializePuzzle]);
+  }, [initializePuzzle]);
 
   // tilesが初期化された直後に自動でシャッフル（不要なので削除）
 
@@ -193,7 +169,6 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
     moves,
     elapsedTime,
     initializePuzzle,
-    shufflePuzzle,
     moveTile,
   };
 };

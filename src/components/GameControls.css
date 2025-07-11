@@ -68,15 +68,6 @@
   margin: 0 5px;
 }
 
-.control-button.shuffle {
-  background-color: #28a745;
-  color: white;
-}
-
-.control-button.shuffle:hover {
-  background-color: #218838;
-}
-
 .control-button.reset {
   background-color: #ffc107;
   color: #212529;
