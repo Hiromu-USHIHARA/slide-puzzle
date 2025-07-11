@@ -10,28 +10,80 @@ export interface Tile {
 }
 
 // ゴール可能か判定する関数
-const isSolvable = (tiles: Tile[], size: number) => {
-//   const totalTiles = size * size;
+const isSolvable = (tiles: Tile[], size: number): { solvable: boolean; inversions: number; emptyRowFromBottom?: number } => {
   let inversions = 0;
-  const tilePositions = tiles
+
+  // 現在の配置でのタイルの位置を取得
+  const currentPositions = tiles
     .filter(t => !t.isEmpty)
     .map(t => t.currentPosition);
 
-  for (let i = 0; i < tilePositions.length - 1; i++) {
-    for (let j = i + 1; j < tilePositions.length; j++) {
-      if (tilePositions[i] > tilePositions[j]) inversions++;
+  // 反転数を計算（現在の位置を正しい順序と比較）
+  for (let i = 0; i < currentPositions.length - 1; i++) {
+    for (let j = i + 1; j < currentPositions.length; j++) {
+      if (currentPositions[i] > currentPositions[j]) {
+        inversions++;
+      }
     }
   }
 
   if (size % 2 === 1) {
-    // 奇数サイズ
-    return inversions % 2 === 0;
+    // 奇数サイズ：反転数が偶数なら解ける
+    const solvable = inversions % 2 === 0;
+    return { solvable, inversions };
   } else {
-    // 偶数サイズ
+    // 偶数サイズ：反転数 + 空きタイルの行番号（下から数えて）が偶数なら解ける
     const emptyTile = tiles.find(t => t.isEmpty)!;
     const emptyRowFromBottom = size - Math.floor(emptyTile.currentPosition / size);
-    return (inversions + emptyRowFromBottom) % 2 === 0;
+    const solvable = (inversions + emptyRowFromBottom) % 2 === 0;
+    
+    return { solvable, inversions, emptyRowFromBottom };
   }
+};
+
+// 正解配置からランダムに移動を適用してシャッフルする関数
+const shuffleFromSolvedState = (tiles: Tile[], size: number, moves: number = 100): Tile[] => {
+  const shuffledTiles = [...tiles];
+  
+  // 指定された回数だけランダムな移動を適用
+  for (let i = 0; i < moves; i++) {
+    const emptyTile = shuffledTiles.find(t => t.isEmpty)!;
+    const emptyPos = emptyTile.currentPosition;
+    const emptyRow = Math.floor(emptyPos / size);
+    const emptyCol = emptyPos % size;
+    
+    // 空きタイルの隣接するタイルをランダムに選択
+    const adjacentPositions: number[] = [];
+    
+    // 上
+    if (emptyRow > 0) {
+      adjacentPositions.push(emptyPos - size);
+    }
+    // 下
+    if (emptyRow < size - 1) {
+      adjacentPositions.push(emptyPos + size);
+    }
+    // 左
+    if (emptyCol > 0) {
+      adjacentPositions.push(emptyPos - 1);
+    }
+    // 右
+    if (emptyCol < size - 1) {
+      adjacentPositions.push(emptyPos + 1);
+    }
+    
+    // ランダムに隣接タイルを選択して移動
+    if (adjacentPositions.length > 0) {
+      const randomAdjacentPos = adjacentPositions[Math.floor(Math.random() * adjacentPositions.length)];
+      const adjacentTile = shuffledTiles.find(t => t.currentPosition === randomAdjacentPos)!;
+      
+      // 位置を交換
+      emptyTile.currentPosition = randomAdjacentPos;
+      adjacentTile.currentPosition = emptyPos;
+    }
+  }
+  
+  return shuffledTiles;
 };
 
 export const useSlidePuzzle = (size: PuzzleSize) => {
@@ -54,24 +106,12 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
       });
     }
 
-    // --- シャッフル処理 ---
-    let shuffledTiles = [...initialTiles];
-    let attempts = 0;
-    const maxAttempts = 1000;
-    do {
-      // ランダムにタイルを交換
-      for (let i = 0; i < totalTiles * 2; i++) {
-        const pos1 = Math.floor(Math.random() * totalTiles);
-        const pos2 = Math.floor(Math.random() * totalTiles);
-        if (pos1 !== pos2) {
-          const temp = shuffledTiles[pos1].currentPosition;
-          shuffledTiles[pos1].currentPosition = shuffledTiles[pos2].currentPosition;
-          shuffledTiles[pos2].currentPosition = temp;
-        }
-      }
-      attempts++;
-    } while (!isSolvable(shuffledTiles, size) && attempts < maxAttempts);
-
+    // 正解配置からランダムに移動を適用してシャッフル
+    const shuffledTiles = shuffleFromSolvedState(initialTiles, size, size === 3 ? 150 : 300);
+    
+    // 検証（確認のため）
+    const validation = isSolvable(shuffledTiles, size);
+    
     setTiles(shuffledTiles);
     setIsComplete(false);
     setMoves(0);
@@ -82,27 +122,28 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
   // パズルをシャッフル（解ける状態を保証）
   const shufflePuzzle = useCallback(() => {
     const totalTiles = size * size;
-    const shuffledTiles = [...tiles];
-    let attempts = 0;
-    const maxAttempts = 1000;
-    do {
-      for (let i = 0; i < totalTiles * 2; i++) {
-        const pos1 = Math.floor(Math.random() * totalTiles);
-        const pos2 = Math.floor(Math.random() * totalTiles);
-        if (pos1 !== pos2) {
-          const temp = shuffledTiles[pos1].currentPosition;
-          shuffledTiles[pos1].currentPosition = shuffledTiles[pos2].currentPosition;
-          shuffledTiles[pos2].currentPosition = temp;
-        }
-      }
-      attempts++;
-    } while (!isSolvable(shuffledTiles, size) && attempts < maxAttempts);
+    let initialTiles: Tile[] = [];
+    for (let i = 0; i < totalTiles; i++) {
+      initialTiles.push({
+        id: i,
+        currentPosition: i,
+        correctPosition: i,
+        isEmpty: i === totalTiles - 1
+      });
+    }
+
+    // 正解配置からランダムに移動を適用してシャッフル
+    const shuffledTiles = shuffleFromSolvedState(initialTiles, size, size === 3 ? 150 : 300);
+    
+    // 検証（確認のため）
+    const validation = isSolvable(shuffledTiles, size);
+    
     setTiles(shuffledTiles);
     setIsComplete(false);
     setMoves(0);
     setStartTime(new Date());
     setElapsedTime(0);
-  }, [tiles, size]);
+  }, [size]);
 
   // タイルを移動
   const moveTile = useCallback((tileId: number) => {
