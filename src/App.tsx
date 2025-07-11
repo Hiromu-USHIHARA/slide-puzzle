@@ -85,6 +85,10 @@ function App() {
 
       <footer className="app-footer">
         <p>
+          <a href="https://github.com/Hiromu-USHIHARA/slide-puzzle">
+            <img src="https://img.shields.io/github/stars/Hiromu-USHIHARA/slide-puzzle?style=social" alt="GitHub Repository" />
+          </a>
+          <br />
           designed by{' '}
           <a href="https://github.com/Hiromu-USHIHARA">Hiromu Ushihara</a>
         </p>
