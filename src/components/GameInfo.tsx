@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import './GameInfo.css';
 
 interface GameInfoProps {
@@ -10,7 +10,7 @@ interface GameInfoProps {
 export const GameInfo: React.FC<GameInfoProps> = ({
   moves,
   elapsedTime,
-  isComplete
+  isComplete,
 }) => {
   const formatTime = (milliseconds: number) => {
     const seconds = Math.floor(milliseconds / 1000);
@@ -36,4 +36,4 @@ export const GameInfo: React.FC<GameInfoProps> = ({
       )}
     </div>
   );
-}; 
+};

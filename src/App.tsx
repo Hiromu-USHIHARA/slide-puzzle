@@ -1,15 +1,15 @@
-import { useState, useCallback } from 'react';
-import { useSlidePuzzle, type PuzzleSize } from './components/useSlidePuzzle';
-import { PuzzleBoard } from './components/PuzzleBoard';
-import { GameInfo } from './components/GameInfo';
+import { useCallback, useState } from 'react';
 import { GameControls } from './components/GameControls';
+import { GameInfo } from './components/GameInfo';
 import { ImageUpload } from './components/ImageUpload';
+import { PuzzleBoard } from './components/PuzzleBoard';
+import { type PuzzleSize, useSlidePuzzle } from './components/useSlidePuzzle';
 import './App.css';
 
 function App() {
   const [size, setSize] = useState<PuzzleSize>(3);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  
+
   const {
     tiles,
     isComplete,
@@ -17,7 +17,7 @@ function App() {
     elapsedTime,
     initializePuzzle,
     shufflePuzzle,
-    moveTile
+    moveTile,
   } = useSlidePuzzle(size);
 
   // サイズ変更時の処理
@@ -41,9 +41,12 @@ function App() {
   }, []);
 
   // タイルクリック時の処理
-  const handleTileClick = useCallback((tileId: number) => {
-    moveTile(tileId);
-  }, [moveTile]);
+  const handleTileClick = useCallback(
+    (tileId: number) => {
+      moveTile(tileId);
+    },
+    [moveTile]
+  );
 
   // 初期化はuseSlidePuzzleフック内で自動的に行われるため削除
 
@@ -58,7 +61,7 @@ function App() {
         <div className="game-container">
           <div className="game-sidebar">
             <ImageUpload onImageChange={handleImageChange} />
-            
+
             <GameControls
               size={size}
               onSizeChange={handleSizeChange}
@@ -88,7 +91,10 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <p>designed by <a href="https://github.com/Hiromu-USHIHARA">Hiromu Ushihara</a></p>
+        <p>
+          designed by{' '}
+          <a href="https://github.com/Hiromu-USHIHARA">Hiromu Ushihara</a>
+        </p>
       </footer>
     </div>
   );

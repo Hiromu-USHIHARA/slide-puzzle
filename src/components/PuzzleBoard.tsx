@@ -1,5 +1,5 @@
-import React from 'react';
-import type { Tile, PuzzleSize } from './useSlidePuzzle';
+import type React from 'react';
+import type { PuzzleSize, Tile } from './useSlidePuzzle';
 import './PuzzleBoard.css';
 
 interface PuzzleBoardProps {
@@ -13,32 +13,30 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   tiles,
   size,
   onTileClick,
-  uploadedImage
+  uploadedImage,
 }) => {
   const renderTile = (tile: Tile) => {
-    let tileStyle: React.CSSProperties = {};
-    if (uploadedImage && !tile.isEmpty) {
-      const row = Math.floor(tile.correctPosition / size);
-      const col = tile.correctPosition % size;
-      const percent = size > 1 ? 100 / (size - 1) : 100;
-      tileStyle = {
-        backgroundImage: `url(${uploadedImage})`,
-        backgroundSize: `${size * 100}% ${size * 100}%`,
-        backgroundPosition: `-${col * percent}% -${row * percent}%`,
-      };
-    }
+    const tileStyle = {
+      backgroundImage: uploadedImage ? `url(${uploadedImage})` : undefined,
+      backgroundPosition: uploadedImage
+        ? `${-((tile.correctPosition % size) * 100)}% ${-((Math.floor(tile.correctPosition / size)) * 100)}%`
+        : undefined,
+    };
 
     return (
-      <div
+      <button
+        type="button"
         key={tile.id}
         className={`puzzle-tile ${tile.isEmpty ? 'empty' : ''}`}
         style={tileStyle}
         onClick={() => !tile.isEmpty && onTileClick(tile.id)}
+        disabled={tile.isEmpty}
+        aria-label={tile.isEmpty ? '空のタイル' : `タイル ${tile.correctPosition + 1}`}
       >
         {!uploadedImage && !tile.isEmpty && (
           <span className="tile-number">{tile.correctPosition + 1}</span>
         )}
-      </div>
+      </button>
     );
   };
 
@@ -46,13 +44,13 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     gridTemplateColumns: `repeat(${size}, 1fr)`,
     gridTemplateRows: `repeat(${size}, 1fr)`,
   };
-  
+
   return (
     <div className="puzzle-board" style={boardStyle}>
       {Array.from({ length: size * size }, (_, index) => {
         const tile = tiles.find(t => t.currentPosition === index);
-        return tile ? renderTile(tile) : <div key={index} className="puzzle-tile empty" />;
+        return tile ? renderTile(tile) : <div key={`empty-${index}-${size}`} className="puzzle-tile empty" />;
       })}
     </div>
   );
-}; 
+};

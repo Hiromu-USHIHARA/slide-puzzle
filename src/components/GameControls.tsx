@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import type { PuzzleSize } from './useSlidePuzzle';
 import './GameControls.css';
 
@@ -15,20 +15,22 @@ export const GameControls: React.FC<GameControlsProps> = ({
   onSizeChange,
   onShuffle,
   onReset,
-  isComplete
+  isComplete,
 }) => {
   return (
     <div className="game-controls">
       <div className="control-group">
-        <label className="control-label">パズルサイズ:</label>
+        <div className="control-label">パズルサイズ:</div>
         <div className="size-buttons">
           <button
+            type="button"
             className={`size-button ${size === 3 ? 'active' : ''}`}
             onClick={() => onSizeChange(3)}
           >
             3×3
           </button>
           <button
+            type="button"
             className={`size-button ${size === 4 ? 'active' : ''}`}
             onClick={() => onSizeChange(4)}
           >
@@ -36,23 +38,23 @@ export const GameControls: React.FC<GameControlsProps> = ({
           </button>
         </div>
       </div>
-      
+
       <div className="control-group">
-        <button className="control-button shuffle" onClick={onShuffle}>
+        <button type="button" className="control-button shuffle" onClick={onShuffle}>
           シャッフル
         </button>
-        <button className="control-button reset" onClick={onReset}>
+        <button type="button" className="control-button reset" onClick={onReset}>
           リセット
         </button>
       </div>
-      
+
       {isComplete && (
         <div className="completion-controls">
-          <button className="control-button new-game" onClick={onShuffle}>
+          <button type="button" className="control-button new-game" onClick={onShuffle}>
             新しいゲーム
           </button>
         </div>
       )}
     </div>
   );
-}; 
+};

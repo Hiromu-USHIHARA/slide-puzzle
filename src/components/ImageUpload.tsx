@@ -7,7 +7,8 @@ interface ImageUploadProps {
 }
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageChange }) => {
-  const { uploadedImage, isLoading, handleImageUpload, resetImage } = useImageUpload();
+  const { uploadedImage, isLoading, handleImageUpload, resetImage } =
+    useImageUpload();
 
   React.useEffect(() => {
     onImageChange(uploadedImage);
@@ -28,7 +29,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageChange }) => {
           />
         </label>
         {uploadedImage && (
-          <button className="reset-button" onClick={resetImage}>
+          <button type="button" className="reset-button" onClick={resetImage}>
             リセット
           </button>
         )}
@@ -40,4 +41,4 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageChange }) => {
       )}
     </div>
   );
-}; 
+};
