@@ -110,7 +110,7 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
     const shuffledTiles = shuffleFromSolvedState(initialTiles, size, size === 3 ? 150 : 300);
     
     // 検証（確認のため）
-    const validation = isSolvable(shuffledTiles, size);
+    // const validation = isSolvable(shuffledTiles, size);
     
     setTiles(shuffledTiles);
     setIsComplete(false);
@@ -136,7 +136,7 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
     const shuffledTiles = shuffleFromSolvedState(initialTiles, size, size === 3 ? 150 : 300);
     
     // 検証（確認のため）
-    const validation = isSolvable(shuffledTiles, size);
+    // const validation = isSolvable(shuffledTiles, size);
     
     setTiles(shuffledTiles);
     setIsComplete(false);
