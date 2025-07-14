@@ -10,6 +10,7 @@ interface GameControlsProps {
   isComplete: boolean;
   isSolving: boolean;
   hasSolution: boolean;
+  isPlayingSolution: boolean;
 }
 
 export const GameControls: React.FC<GameControlsProps> = ({
@@ -20,6 +21,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
   isComplete,
   isSolving,
   hasSolution,
+  isPlayingSolution,
 }) => {
   return (
     <div className="game-controls">
@@ -55,9 +57,15 @@ export const GameControls: React.FC<GameControlsProps> = ({
             type="button" 
             className={`control-button solution ${hasSolution ? 'has-solution' : ''}`}
             onClick={onFindSolution}
-            disabled={isSolving}
+            disabled={isSolving || isPlayingSolution}
           >
-            {isSolving ? '解答を計算中...' : hasSolution ? '▶ 解答を表示' : '解答を見つける'}
+            {isPlayingSolution
+              ? '解答を再生中...'
+              : isSolving
+                ? '解答を計算中...'
+                : hasSolution
+                  ? '▶ 解答を表示'
+                  : '解答を見つける'}
           </button>
         </div>
       )}

@@ -1,3 +1,4 @@
+import { Heap } from 'heap-js';
 import { useCallback, useEffect, useState } from 'react';
 
 export type PuzzleSize = 3 | 4;
@@ -55,36 +56,21 @@ const findSolution = (tiles: Tile[], size: number): number[] | null => {
   console.log('開始ノード h値:', startNode.h);
 
   const openSet = new Map<string, PuzzleNode>();
+  const openSetHeap = new Heap<PuzzleNode>((a, b) => a.f - b.f);
   const closedSet = new Set<string>();
   
   openSet.set(tilesToString(tiles), startNode);
+  openSetHeap.push(startNode);
 
   let iterations = 0;
-  const maxIterations = 100000; // 最大イテレーション制限
+  const maxIterations = 10000000; // 10倍に増やす
   
-  while (openSet.size > 0 && iterations < maxIterations) {
+  while (openSetHeap.size() > 0 && iterations < maxIterations) {
     iterations++;
-    if (iterations % 1000 === 0) {
-      console.log('探索中... イテレーション:', iterations, 'オープンセット:', openSet.size);
-    }
-    
-    // f値が最小のノードを選択
-    let currentNode: PuzzleNode | null = null;
-    let minF = Infinity;
-    
-    for (const node of openSet.values()) {
-      if (node.f < minF) {
-        minF = node.f;
-        currentNode = node;
-      }
-    }
-
-    if (!currentNode) {
-      console.log('現在のノードが見つかりません');
-      break;
-    }
-
+    const currentNode = openSetHeap.pop();
+    if (!currentNode) break;
     const currentState = tilesToString(currentNode.tiles);
+    if (!openSet.has(currentState)) continue; // 既に処理済み
     openSet.delete(currentState);
     closedSet.add(currentState);
 
@@ -150,6 +136,7 @@ const findSolution = (tiles: Tile[], size: number): number[] | null => {
             movedTileId: adjacentTile.id,
           };
           openSet.set(newState, newNode);
+          openSetHeap.push(newNode);
         }
       }
     }
@@ -358,7 +345,7 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
     if (isPlayingSolution && solution.length > 0 && solutionIndex < solution.length && !isComplete) {
       const timer = setTimeout(() => {
         executeSolution();
-      }, 500);
+      }, 200);
       return () => clearTimeout(timer);
     }
     // 再生が終わったら自動停止
