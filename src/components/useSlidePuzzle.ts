@@ -16,7 +16,7 @@ interface PuzzleNode {
   h: number; // ヒューリスティック（マンハッタン距離）
   f: number; // f = g + h
   parent: PuzzleNode | null;
-  lastMove: number | null; // 最後に移動したタイルのID
+  movedTileId: number | null; // どのタイルIDを動かしたか
 }
 
 // マンハッタン距離を計算
@@ -100,7 +100,7 @@ const findSolution = (tiles: Tile[], size: number): number[] | null => {
     h: calculateManhattanDistance(tiles, size),
     f: calculateManhattanDistance(tiles, size),
     parent: null,
-    lastMove: null,
+    movedTileId: null,
   };
 
   console.log('開始ノード h値:', startNode.h);
@@ -145,8 +145,10 @@ const findSolution = (tiles: Tile[], size: number): number[] | null => {
       // 解答経路を復元
       const solution: number[] = [];
       let node: PuzzleNode | null = currentNode;
-      while (node && node.lastMove !== null) {
-        solution.unshift(node.lastMove);
+      while (node && node.parent !== null) {
+        if (node.movedTileId !== null) {
+          solution.unshift(node.movedTileId);
+        }
         node = node.parent;
       }
       console.log('解答経路:', solution);
@@ -154,36 +156,53 @@ const findSolution = (tiles: Tile[], size: number): number[] | null => {
     }
 
     // 隣接状態を生成
-    const adjacentStates = getAdjacentStates(currentNode.tiles, size);
-    console.log('隣接状態数:', adjacentStates.length);
-    
-    for (const newTiles of adjacentStates) {
-      const newState = tilesToString(newTiles);
-      
-      if (closedSet.has(newState)) continue;
-
-      const g = currentNode.g + 1;
-      const h = calculateManhattanDistance(newTiles, size);
-      const f = g + h;
-
-      const existingNode = openSet.get(newState);
-      if (existingNode && existingNode.g <= g) continue;
-
-      // 移動したタイルのIDを特定（親ノードのtilesと比較）
-      const movedTile = newTiles.find(t => 
-        t.currentPosition !== currentNode.tiles.find(ot => ot.id === t.id)?.currentPosition
-      );
-      
-      const newNode: PuzzleNode = {
-        tiles: newTiles,
-        g,
-        h,
-        f,
-        parent: currentNode,
-        lastMove: movedTile?.id || null,
-      };
-
-      openSet.set(newState, newNode);
+    const emptyTile = currentNode.tiles.find(t => t.isEmpty);
+    if (!emptyTile) continue;
+    const emptyPos = emptyTile.currentPosition;
+    const emptyRow = Math.floor(emptyPos / size);
+    const emptyCol = emptyPos % size;
+    const directions = [
+      { row: -1, col: 0 }, // 上
+      { row: 1, col: 0 },  // 下
+      { row: 0, col: -1 }, // 左
+      { row: 0, col: 1 },  // 右
+    ];
+    for (const dir of directions) {
+      const newRow = emptyRow + dir.row;
+      const newCol = emptyCol + dir.col;
+      if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
+        const newPos = newRow * size + newCol;
+        const adjacentTile = currentNode.tiles.find(t => t.currentPosition === newPos);
+        if (adjacentTile) {
+          // 新しい状態を生成
+          const newTiles = currentNode.tiles.map(t => {
+            if (t.id === emptyTile.id) {
+              return { ...t, currentPosition: newPos };
+            }
+            if (t.id === adjacentTile.id) {
+              return { ...t, currentPosition: emptyPos };
+            }
+            return t;
+          });
+          const newState = tilesToString(newTiles);
+          if (closedSet.has(newState)) continue;
+          const g = currentNode.g + 1;
+          const h = calculateManhattanDistance(newTiles, size);
+          const f = g + h;
+          const existingNode = openSet.get(newState);
+          if (existingNode && existingNode.g <= g) continue;
+          // movedTileIdは必ずadjacentTile.id
+          const newNode: PuzzleNode = {
+            tiles: newTiles,
+            g,
+            h,
+            f,
+            parent: currentNode,
+            movedTileId: adjacentTile.id,
+          };
+          openSet.set(newState, newNode);
+        }
+      }
     }
   }
 
@@ -286,6 +305,9 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
     setMoves(0);
     setStartTime(new Date());
     setElapsedTime(0);
+    setSolution([]);            // 解答キャッシュクリア
+    setSolutionIndex(0);        // インデックスリセット
+    setIsPlayingSolution(false);// 再生状態リセット
   }, [size]);
 
   // タイルを移動
@@ -338,8 +360,9 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
   const findSolutionForCurrentState = useCallback(async () => {
     console.log('解答探索開始');
     setIsSolving(true);
-    setSolution([]);
-    setSolutionIndex(0);
+    setSolution([]);            // キャッシュクリア
+    setSolutionIndex(0);        // キャッシュクリア
+    setIsPlayingSolution(false);// 再生状態もリセット
 
     try {
       // 非同期で解答を計算（UIをブロックしないため）

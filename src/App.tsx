@@ -20,7 +20,7 @@ function App() {
     findSolutionForCurrentState,
     isSolving,
     hasSolution,
-    executeSolution,
+    // executeSolution,
     startSolutionPlayback,
   } = useSlidePuzzle(size);
 
