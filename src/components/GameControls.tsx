@@ -57,7 +57,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
             onClick={onFindSolution}
             disabled={isSolving}
           >
-            {isSolving ? '解答を計算中...' : hasSolution ? '解答を表示' : '解答を見つける'}
+            {isSolving ? '解答を計算中...' : hasSolution ? '▶ 解答を表示' : '解答を見つける'}
           </button>
         </div>
       )}
@@ -65,7 +65,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
       {isComplete && (
         <div className="completion-controls">
           <button type="button" className="control-button new-game" onClick={onReset}>
-            新しいゲーム
+            もう一度遊ぶ
           </button>
         </div>
       )}
