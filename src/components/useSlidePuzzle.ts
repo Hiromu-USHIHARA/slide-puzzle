@@ -39,57 +39,6 @@ const tilesToString = (tiles: Tile[]): string => {
   return tiles.map(t => t.currentPosition).join(',');
 };
 
-// 隣接する移動可能な状態を生成
-const getAdjacentStates = (tiles: Tile[], size: number): Tile[][] => {
-  const emptyTile = tiles.find(t => t.isEmpty);
-  if (!emptyTile) {
-    console.log('空きタイルが見つかりません');
-    return [];
-  }
-
-  const emptyPos = emptyTile.currentPosition;
-  const emptyRow = Math.floor(emptyPos / size);
-  const emptyCol = emptyPos % size;
-  const adjacentStates: Tile[][] = [];
-
-  console.log('空きタイル位置:', emptyPos, '行:', emptyRow, '列:', emptyCol);
-
-  // 上下左右の移動を試す
-  const directions = [
-    { row: -1, col: 0 }, // 上
-    { row: 1, col: 0 },  // 下
-    { row: 0, col: -1 }, // 左
-    { row: 0, col: 1 },  // 右
-  ];
-
-  for (const dir of directions) {
-    const newRow = emptyRow + dir.row;
-    const newCol = emptyCol + dir.col;
-
-    if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
-      const newPos = newRow * size + newCol;
-      const adjacentTile = tiles.find(t => t.currentPosition === newPos);
-      
-      if (adjacentTile) {
-        console.log('隣接タイル発見:', adjacentTile.id, '位置:', newPos);
-        const newTiles = tiles.map(t => {
-          if (t.id === emptyTile.id) {
-            return { ...t, currentPosition: newPos };
-          }
-          if (t.id === adjacentTile.id) {
-            return { ...t, currentPosition: emptyPos };
-          }
-          return t;
-        });
-        adjacentStates.push(newTiles);
-      }
-    }
-  }
-
-  console.log('生成された隣接状態数:', adjacentStates.length);
-  return adjacentStates;
-};
-
 // A*アルゴリズムで解答を見つける
 const findSolution = (tiles: Tile[], size: number): number[] | null => {
   console.log('findSolution開始 - サイズ:', size, 'タイル数:', tiles.length);
