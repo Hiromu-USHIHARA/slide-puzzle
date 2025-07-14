@@ -3,16 +3,17 @@ import { useImageUpload } from './useImageUpload';
 import './ImageUpload.css';
 
 interface ImageUploadProps {
-  onImageChange: (image: string | null) => void;
+  onImageChange: (image: string | null, tileImages: (string | null)[]) => void;
+  size: number;
 }
 
-export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageChange }) => {
-  const { uploadedImage, isLoading, handleImageUpload, resetImage } =
+export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageChange, size }) => {
+  const { uploadedImage, tileImages, isLoading, handleImageUpload, resetImage } =
     useImageUpload();
 
   React.useEffect(() => {
-    onImageChange(uploadedImage);
-  }, [uploadedImage, onImageChange]);
+    onImageChange(uploadedImage, tileImages);
+  }, [uploadedImage, tileImages, onImageChange]);
 
   return (
     <div className="image-upload">
@@ -23,7 +24,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageChange }) => {
           <input
             type="file"
             accept="image/*"
-            onChange={handleImageUpload}
+            onChange={e => handleImageUpload(e, size)}
             disabled={isLoading}
             style={{ display: 'none' }}
           />

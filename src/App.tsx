@@ -9,6 +9,7 @@ import './App.css';
 function App() {
   const [size, setSize] = useState<PuzzleSize>(3);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [tileImages, setTileImages] = useState<(string | null)[]>([]);
 
   const {
     tiles,
@@ -20,7 +21,6 @@ function App() {
     findSolutionForCurrentState,
     isSolving,
     hasSolution,
-    // executeSolution,
     startSolutionPlayback,
     isPlayingSolution,
   } = useSlidePuzzle(size);
@@ -45,8 +45,9 @@ function App() {
   }, [hasSolution, startSolutionPlayback, findSolutionForCurrentState]);
 
   // 画像変更時の処理
-  const handleImageChange = useCallback((image: string | null) => {
+  const handleImageChange = useCallback((image: string | null, tiles: (string | null)[]) => {
     setUploadedImage(image);
+    setTileImages(tiles);
   }, []);
 
   // タイルクリック時の処理
@@ -69,7 +70,7 @@ function App() {
       <main className="app-main">
         <div className="game-container">
           <div className="game-sidebar">
-            <ImageUpload onImageChange={handleImageChange} />
+            <ImageUpload onImageChange={handleImageChange} size={size} />
 
             <GameControls
               size={size}
@@ -96,6 +97,7 @@ function App() {
                 size={size}
                 onTileClick={handleTileClick}
                 uploadedImage={uploadedImage}
+                tileImages={tileImages}
               />
             </div>
           </div>
