@@ -77,6 +77,28 @@
   background-color: #e0a800;
 }
 
+.control-button.solution {
+  background-color: #28a745;
+  color: white;
+}
+
+.control-button.solution:hover {
+  background-color: #218838;
+}
+
+.control-button.solution:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.control-button.solution.has-solution {
+  background-color: #17a2b8;
+}
+
+.control-button.solution.has-solution:hover {
+  background-color: #138496;
+}
+
 .control-button.new-game {
   background-color: #17a2b8;
   color: white;
