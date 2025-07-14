@@ -345,7 +345,7 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
     if (isPlayingSolution && solution.length > 0 && solutionIndex < solution.length && !isComplete) {
       const timer = setTimeout(() => {
         executeSolution();
-      }, 500);
+      }, 200);
       return () => clearTimeout(timer);
     }
     // 再生が終わったら自動停止
