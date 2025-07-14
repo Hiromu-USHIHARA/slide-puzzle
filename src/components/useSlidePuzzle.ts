@@ -9,6 +9,192 @@ export interface Tile {
   isEmpty: boolean;
 }
 
+// 解答用のノードクラス
+interface PuzzleNode {
+  tiles: Tile[];
+  g: number; // 開始状態からのコスト
+  h: number; // ヒューリスティック（マンハッタン距離）
+  f: number; // f = g + h
+  parent: PuzzleNode | null;
+  lastMove: number | null; // 最後に移動したタイルのID
+}
+
+// マンハッタン距離を計算
+const calculateManhattanDistance = (tiles: Tile[], size: number): number => {
+  let totalDistance = 0;
+  for (const tile of tiles) {
+    if (!tile.isEmpty) {
+      const currentRow = Math.floor(tile.currentPosition / size);
+      const currentCol = tile.currentPosition % size;
+      const correctRow = Math.floor(tile.correctPosition / size);
+      const correctCol = tile.correctPosition % size;
+      totalDistance += Math.abs(currentRow - correctRow) + Math.abs(currentCol - correctCol);
+    }
+  }
+  return totalDistance;
+};
+
+// タイルの状態を文字列化（重複チェック用）
+const tilesToString = (tiles: Tile[]): string => {
+  return tiles.map(t => t.currentPosition).join(',');
+};
+
+// 隣接する移動可能な状態を生成
+const getAdjacentStates = (tiles: Tile[], size: number): Tile[][] => {
+  const emptyTile = tiles.find(t => t.isEmpty);
+  if (!emptyTile) {
+    console.log('空きタイルが見つかりません');
+    return [];
+  }
+
+  const emptyPos = emptyTile.currentPosition;
+  const emptyRow = Math.floor(emptyPos / size);
+  const emptyCol = emptyPos % size;
+  const adjacentStates: Tile[][] = [];
+
+  console.log('空きタイル位置:', emptyPos, '行:', emptyRow, '列:', emptyCol);
+
+  // 上下左右の移動を試す
+  const directions = [
+    { row: -1, col: 0 }, // 上
+    { row: 1, col: 0 },  // 下
+    { row: 0, col: -1 }, // 左
+    { row: 0, col: 1 },  // 右
+  ];
+
+  for (const dir of directions) {
+    const newRow = emptyRow + dir.row;
+    const newCol = emptyCol + dir.col;
+
+    if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
+      const newPos = newRow * size + newCol;
+      const adjacentTile = tiles.find(t => t.currentPosition === newPos);
+      
+      if (adjacentTile) {
+        console.log('隣接タイル発見:', adjacentTile.id, '位置:', newPos);
+        const newTiles = tiles.map(t => {
+          if (t.id === emptyTile.id) {
+            return { ...t, currentPosition: newPos };
+          }
+          if (t.id === adjacentTile.id) {
+            return { ...t, currentPosition: emptyPos };
+          }
+          return t;
+        });
+        adjacentStates.push(newTiles);
+      }
+    }
+  }
+
+  console.log('生成された隣接状態数:', adjacentStates.length);
+  return adjacentStates;
+};
+
+// A*アルゴリズムで解答を見つける
+const findSolution = (tiles: Tile[], size: number): number[] | null => {
+  console.log('findSolution開始 - サイズ:', size, 'タイル数:', tiles.length);
+  
+  const startNode: PuzzleNode = {
+    tiles: [...tiles],
+    g: 0,
+    h: calculateManhattanDistance(tiles, size),
+    f: calculateManhattanDistance(tiles, size),
+    parent: null,
+    lastMove: null,
+  };
+
+  console.log('開始ノード h値:', startNode.h);
+
+  const openSet = new Map<string, PuzzleNode>();
+  const closedSet = new Set<string>();
+  
+  openSet.set(tilesToString(tiles), startNode);
+
+  let iterations = 0;
+  const maxIterations = 100000; // 最大イテレーション制限
+  
+  while (openSet.size > 0 && iterations < maxIterations) {
+    iterations++;
+    if (iterations % 1000 === 0) {
+      console.log('探索中... イテレーション:', iterations, 'オープンセット:', openSet.size);
+    }
+    
+    // f値が最小のノードを選択
+    let currentNode: PuzzleNode | null = null;
+    let minF = Infinity;
+    
+    for (const node of openSet.values()) {
+      if (node.f < minF) {
+        minF = node.f;
+        currentNode = node;
+      }
+    }
+
+    if (!currentNode) {
+      console.log('現在のノードが見つかりません');
+      break;
+    }
+
+    const currentState = tilesToString(currentNode.tiles);
+    openSet.delete(currentState);
+    closedSet.add(currentState);
+
+    // ゴールチェック
+    if (currentNode.h === 0) {
+      console.log('解答発見! 手数:', currentNode.g);
+      // 解答経路を復元
+      const solution: number[] = [];
+      let node: PuzzleNode | null = currentNode;
+      while (node && node.lastMove !== null) {
+        solution.unshift(node.lastMove);
+        node = node.parent;
+      }
+      console.log('解答経路:', solution);
+      return solution;
+    }
+
+    // 隣接状態を生成
+    const adjacentStates = getAdjacentStates(currentNode.tiles, size);
+    console.log('隣接状態数:', adjacentStates.length);
+    
+    for (const newTiles of adjacentStates) {
+      const newState = tilesToString(newTiles);
+      
+      if (closedSet.has(newState)) continue;
+
+      const g = currentNode.g + 1;
+      const h = calculateManhattanDistance(newTiles, size);
+      const f = g + h;
+
+      const existingNode = openSet.get(newState);
+      if (existingNode && existingNode.g <= g) continue;
+
+      // 移動したタイルのIDを特定（親ノードのtilesと比較）
+      const movedTile = newTiles.find(t => 
+        t.currentPosition !== currentNode.tiles.find(ot => ot.id === t.id)?.currentPosition
+      );
+      
+      const newNode: PuzzleNode = {
+        tiles: newTiles,
+        g,
+        h,
+        f,
+        parent: currentNode,
+        lastMove: movedTile?.id || null,
+      };
+
+      openSet.set(newState, newNode);
+    }
+  }
+
+  if (iterations >= maxIterations) {
+    console.log('最大イテレーション数に達しました:', maxIterations);
+  } else {
+    console.log('解答が見つかりませんでした。イテレーション:', iterations);
+  }
+  return null; // 解答が見つからない
+};
+
 // 正解配置からランダムに移動を適用してシャッフルする関数
 const shuffleFromSolvedState = (
   tiles: Tile[],
@@ -70,6 +256,10 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
   const [moves, setMoves] = useState(0);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [isSolving, setIsSolving] = useState(false);
+  const [solution, setSolution] = useState<number[]>([]);
+  const [solutionIndex, setSolutionIndex] = useState(0);
+  const [isPlayingSolution, setIsPlayingSolution] = useState(false);
 
   // パズルを初期化（シャッフルも同時に実施）
   const initializePuzzle = useCallback(() => {
@@ -144,6 +334,74 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
 
   // tilesが初期化された直後に自動でシャッフル（不要なので削除）
 
+  // 解答を見つける
+  const findSolutionForCurrentState = useCallback(async () => {
+    console.log('解答探索開始');
+    setIsSolving(true);
+    setSolution([]);
+    setSolutionIndex(0);
+
+    try {
+      // 非同期で解答を計算（UIをブロックしないため）
+      const result = await new Promise<number[] | null>((resolve) => {
+        setTimeout(() => {
+          console.log('findSolution呼び出し');
+          const solution = findSolution(tiles, size);
+          console.log('findSolution結果:', solution);
+          resolve(solution);
+        }, 0);
+      });
+
+      if (result) {
+        console.log('解答設定:', result);
+        setSolution(result);
+      } else {
+        console.log('解答が見つかりませんでした');
+      }
+    } catch (error) {
+      console.error('解答探索エラー:', error);
+    } finally {
+      setIsSolving(false);
+    }
+  }, [tiles, size]);
+
+  // 解答を実行（1手進める）
+  const executeSolution = useCallback(() => {
+    if (solution.length === 0 || solutionIndex >= solution.length) return;
+    const tileId = solution[solutionIndex];
+    moveTile(tileId);
+    setSolutionIndex(prev => prev + 1);
+  }, [solution, solutionIndex, moveTile]);
+
+  // 解答の自動再生を開始
+  const startSolutionPlayback = useCallback(() => {
+    if (solution.length > 0) {
+      setSolutionIndex(0);
+      setIsPlayingSolution(true);
+    }
+  }, [solution]);
+
+  // 解答の自動再生
+  useEffect(() => {
+    if (isPlayingSolution && solution.length > 0 && solutionIndex < solution.length && !isComplete) {
+      const timer = setTimeout(() => {
+        executeSolution();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+    // 再生が終わったら自動停止
+    if (isPlayingSolution && (solutionIndex >= solution.length || isComplete)) {
+      setIsPlayingSolution(false);
+    }
+  }, [isPlayingSolution, solution, solutionIndex, isComplete, executeSolution]);
+
+  // // 解答の自動再生を開始
+  // const startSolutionPlayback = useCallback(() => {
+  //   if (solution.length > 0) {
+  //     setSolutionIndex(0);
+  //   }
+  // }, [solution]);
+
   // 完了チェック
   useEffect(() => {
     const isPuzzleComplete = tiles.every(
@@ -170,5 +428,13 @@ export const useSlidePuzzle = (size: PuzzleSize) => {
     elapsedTime,
     initializePuzzle,
     moveTile,
+    findSolutionForCurrentState,
+    isSolving,
+    solution,
+    solutionIndex,
+    hasSolution: solution.length > 0,
+    executeSolution,
+    startSolutionPlayback,
+    isPlayingSolution,
   };
 };

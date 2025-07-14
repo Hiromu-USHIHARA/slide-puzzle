@@ -6,14 +6,20 @@ interface GameControlsProps {
   size: PuzzleSize;
   onSizeChange: (size: PuzzleSize) => void;
   onReset: () => void;
+  onFindSolution: () => void;
   isComplete: boolean;
+  isSolving: boolean;
+  hasSolution: boolean;
 }
 
 export const GameControls: React.FC<GameControlsProps> = ({
   size,
   onSizeChange,
   onReset,
+  onFindSolution,
   isComplete,
+  isSolving,
+  hasSolution,
 }) => {
   return (
     <div className="game-controls">
@@ -42,6 +48,19 @@ export const GameControls: React.FC<GameControlsProps> = ({
           リセット
         </button>
       </div>
+
+      {!isComplete && (
+        <div className="control-group">
+          <button 
+            type="button" 
+            className={`control-button solution ${hasSolution ? 'has-solution' : ''}`}
+            onClick={onFindSolution}
+            disabled={isSolving}
+          >
+            {isSolving ? '解答を計算中...' : hasSolution ? '解答を表示' : '解答を見つける'}
+          </button>
+        </div>
+      )}
 
       {isComplete && (
         <div className="completion-controls">

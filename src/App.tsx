@@ -17,6 +17,11 @@ function App() {
     elapsedTime,
     initializePuzzle,
     moveTile,
+    findSolutionForCurrentState,
+    isSolving,
+    hasSolution,
+    executeSolution,
+    startSolutionPlayback,
   } = useSlidePuzzle(size);
 
   // サイズ変更時の処理
@@ -28,6 +33,15 @@ function App() {
   const handleReset = useCallback(() => {
     initializePuzzle();
   }, [initializePuzzle]);
+
+  // 解答を見つける or 表示する処理
+  const handleFindOrShowSolution = useCallback(() => {
+    if (hasSolution) {
+      startSolutionPlayback();
+    } else {
+      findSolutionForCurrentState();
+    }
+  }, [hasSolution, startSolutionPlayback, findSolutionForCurrentState]);
 
   // 画像変更時の処理
   const handleImageChange = useCallback((image: string | null) => {
@@ -60,7 +74,10 @@ function App() {
               size={size}
               onSizeChange={handleSizeChange}
               onReset={handleReset}
+              onFindSolution={handleFindOrShowSolution}
               isComplete={isComplete}
+              isSolving={isSolving}
+              hasSolution={hasSolution}
             />
 
             <GameInfo
