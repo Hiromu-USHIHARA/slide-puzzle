@@ -14,7 +14,7 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   tiles,
   size,
   onTileClick,
-  uploadedImage,
+  // uploadedImage,
   tileImages,
 }) => {
   const renderTile = (tile: Tile) => {
@@ -31,7 +31,7 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
       );
     }
     // タイルごとの画像を割り当て
-    const tileImg = tileImages && tileImages[tile.correctPosition];
+    const tileImg = tileImages?.[tile.correctPosition];
     const tileStyle = tileImg
       ? {
           backgroundImage: `url(${tileImg})`,
