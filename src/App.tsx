@@ -22,6 +22,7 @@ function App() {
     hasSolution,
     // executeSolution,
     startSolutionPlayback,
+    isPlayingSolution,
   } = useSlidePuzzle(size);
 
   // サイズ変更時の処理
@@ -78,6 +79,7 @@ function App() {
               isComplete={isComplete}
               isSolving={isSolving}
               hasSolution={hasSolution}
+              isPlayingSolution={isPlayingSolution}
             />
 
             <GameInfo
