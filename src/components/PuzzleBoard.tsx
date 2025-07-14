@@ -7,6 +7,7 @@ interface PuzzleBoardProps {
   size: PuzzleSize;
   onTileClick: (tileId: number) => void;
   uploadedImage: string | null;
+  tileImages: (string | null)[];
 }
 
 export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
@@ -14,28 +15,41 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   size,
   onTileClick,
   uploadedImage,
+  tileImages,
 }) => {
   const renderTile = (tile: Tile) => {
-    const tileStyle = {
-      backgroundImage: uploadedImage ? `url(${uploadedImage})` : undefined,
-      backgroundPosition: uploadedImage
-        ? `${-((tile.correctPosition % size) * 100)}% ${-((Math.floor(tile.correctPosition / size)) * 100)}%`
-        : undefined,
-    };
+    // 空きタイルは画像を表示しない
+    if (tile.isEmpty) {
+      return (
+        <button
+          type="button"
+          key={tile.id}
+          className="puzzle-tile empty"
+          disabled
+          aria-label="空のタイル"
+        />
+      );
+    }
+    // タイルごとの画像を割り当て
+    const tileImg = tileImages && tileImages[tile.correctPosition];
+    const tileStyle = tileImg
+      ? {
+          backgroundImage: `url(${tileImg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }
+      : undefined;
 
     return (
       <button
         type="button"
         key={tile.id}
-        className={`puzzle-tile ${tile.isEmpty ? 'empty' : ''}`}
+        className="puzzle-tile"
         style={tileStyle}
-        onClick={() => !tile.isEmpty && onTileClick(tile.id)}
-        disabled={tile.isEmpty}
-        aria-label={tile.isEmpty ? '空のタイル' : `タイル ${tile.correctPosition + 1}`}
+        onClick={() => onTileClick(tile.id)}
+        aria-label={`タイル ${tile.correctPosition + 1}`}
       >
-        {!uploadedImage && !tile.isEmpty && (
-          <span className="tile-number">{tile.correctPosition + 1}</span>
-        )}
+        {!tileImg && <span className="tile-number">{tile.correctPosition + 1}</span>}
       </button>
     );
   };
